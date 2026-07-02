@@ -3,6 +3,50 @@ import re
 
 FILENAME = 'expenses.csv'
 
+class Expense:
+
+    YEAR_LOWER_LIMIT = 1930
+    YEAR_UPPER_LIMIT = 2999
+
+    def __init__(self, date : str, category : str, amount : float, desc : str):
+        self._date = date
+        self._category = category
+        self._amount = amount
+        self._description = desc
+    
+    @property
+    def date(self) -> str:
+        return self._date
+    
+    @date.setter
+    def date(self, new_date : str):
+        if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", new_date):
+            month, day, year = new_date.split('/')
+            if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= year <= self.YEAR_UPPER_LIMIT:
+                self._date = new_date
+                return
+            raise ValueError("Invalid or unsupported date input!")
+        else:
+            raise ValueError("Invalid date format!")
+        
+    @property
+    def category(self) -> str:
+        return self._category
+    
+    @property
+    def amount(self) -> float:
+        return self._amount
+    
+    @amount.setter
+    def amount(self, value):
+        self._amount = round(value, 2)
+
+    @property
+    def description(self) -> str:
+        return self._description
+    
+### Awaiting refactoring ###
+
 def get_input():
     date = input('Date: ')
     cat = input('Category: ')
@@ -10,7 +54,7 @@ def get_input():
     description = input('Description: ')
     return date, cat, amount, description
 
-def check_date(date : str):
+def check_date(date : str): # implemented in Expense class
         if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", date):
             month, day, _ = date.split('/')
             return 1 <= int(month) <= 12 and 1 <= int(day) <= 31
