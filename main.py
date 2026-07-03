@@ -19,11 +19,11 @@ class Expense:
         return self._date
     
     @date.setter
-    def date(self, new_date : str):
-        if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", new_date):
-            month, day, year = new_date.split('/')
+    def date(self, date : str):
+        if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", date):
+            month, day, year = date.split('/')
             if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= year <= self.YEAR_UPPER_LIMIT:
-                self._date = new_date
+                self._date = date
                 return
             raise ValueError("Invalid or unsupported date input!")
         else:
@@ -45,6 +45,35 @@ class Expense:
     def description(self) -> str:
         return self._description
     
+    def __str__(self):
+        return f"{self._date}, {self._category}, {self._amount}, {self._description}"
+
+class ExpenseDatabase:
+    def __init__(self, filename : str, parent_dir : str = "files"):
+        self.path = Path(parent_dir + "/" + filename)
+    
+    @property
+    def path(self) -> Path:
+        return self._path
+    
+    @path.setter
+    def path(self, value : Path):
+        if not value.exists():
+            value.parent.mkdir(exist_ok=True, parents=True)
+            value.touch()
+            value.write_text('Date, Category, Amount, Description')
+        self._path = value
+    
+    def add_expense(self, expense : Expense):
+        with open(FILENAME, 'a') as file:
+            file.write(f'\n{expense}')
+
+    def __str__(self):
+        with open(self._path, 'r') as file:
+            data = file.read()
+        return data
+
+# ExpenseReport, CLI, etc.    
 ### Awaiting refactoring ###
 
 def get_input():
@@ -54,24 +83,24 @@ def get_input():
     description = input('Description: ')
     return date, cat, amount, description
 
-def check_date(date : str): # implemented in Expense class
+def check_date(date : str): # see Expense class date setter
         if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", date):
             month, day, _ = date.split('/')
             return 1 <= int(month) <= 12 and 1 <= int(day) <= 31
         return False
 
-def init_file():
+def init_file(): # see ExpenseDatabase class filename setter
     path = Path(FILENAME)
     if not path.exists():
         path.touch()
         path.write_text('Date, Category, Amount, Description')
 
-def save_input(date, cat, amount, desc):
+def save_input(date, cat, amount, desc): # see ExpenseDatabase class add_expense method
     init_file()
     with open(FILENAME, 'a') as file:
         file.write(f'\n{date}, {cat}, {amount}, {desc}')
 
-def print_all():
+def print_all(): # see ExpenseDatabase class __str__ method
     if not Path(FILENAME).exists():
         print("Error: No record was found!")
         return
