@@ -48,6 +48,7 @@ class Expense:
     def __str__(self):
         return f"{self._date}, {self._category}, {self._amount}, {self._description}"
 
+
 class ExpenseDatabase:
     def __init__(self, filename : str, parent_dir : str = "files"):
         self.path = Path(parent_dir + "/" + filename)
