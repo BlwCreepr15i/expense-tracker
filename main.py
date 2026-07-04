@@ -74,7 +74,68 @@ class ExpenseDatabase:
             data = file.read()
         return data
 
-# ExpenseReport, CLI, etc.    
+class ExpenseReport:
+    def __init__(self, database : ExpenseDatabase):
+        self.database = database
+    
+    @property
+    def database(self) -> ExpenseDatabase:
+        return self._database
+    
+    @database.setter
+    def database(self, value : ExpenseDatabase):
+        self._database = value
+
+    @staticmethod
+    def find_max(cat_costs : dict) -> tuple:
+        max_cat = "None"
+        max_expense = 0
+        for key in cat_costs:
+            if cat_costs[key] >= max_expense:
+                max_expense = cat_costs[key]
+                max_cat = key
+        return max_cat, max_expense
+    
+    def print_report(self, month : int, year : int):
+        print(f'----- Monthly report of {month}/{year} -----')
+        with open(self._database.path, 'r') as file:
+            headers = file.readline().strip()
+            data = file.readlines()
+
+        cats = {}
+        total = 0
+        all_records = ''
+        for row in data:
+            elements = [element.strip() for element in row.split(',')]
+            mo, _, yr = elements[0].split('/')
+            mo, yr = int(mo), int(yr) # bugfix
+
+            if mo == month and yr == year:
+                all_records += row # each row ends with \n
+                cost = float(elements[2])
+                total += cost
+                if cats.get(elements[1]) == None:
+                    cats[elements[1]] = cost
+                else:
+                    cats[elements[1]] += cost
+        all_records += '\n'
+
+        max_cat, max_expense = self.find_max(cats)
+        if total == 0:
+            percentage = 0 # prevents division by zero errors
+        else:
+            percentage = max_expense / total * 100
+
+        print(f'>> Total expense: ${total:.2f}')
+        print(f'>> Category with the most expense: {max_cat} - ${max_expense} ({percentage:.1f}%)\n')
+
+        if total != 0:
+            breakdown = "Category Full Breakdown:\n"
+            for key in cats:
+                breakdown += f">> {key} - ${cats[key]} ({cats[key]/total*100:.1f}%)\n"
+            print(breakdown)
+
+# CLI  
 ### Awaiting refactoring ###
 
 def get_input():
@@ -160,7 +221,7 @@ def print_report(month, year):
         print(f'Here is all entries ({month}/{year}): ') 
         print(all_records)
 
-def main():
+def main(): # TBI: refactor to CLI class
     while True:
         mode = input('Select modes (read/write/report): ').upper().strip()
         match mode:
