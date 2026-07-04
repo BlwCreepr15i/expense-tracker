@@ -9,10 +9,10 @@ class Expense:
     YEAR_UPPER_LIMIT = 2999
 
     def __init__(self, date : str, category : str, amount : float, desc : str):
-        self._date = date
-        self._category = category
-        self._amount = amount
-        self._description = desc
+        self.date = date
+        self.category = category
+        self.amount = amount
+        self.description = desc
     
     @property
     def date(self) -> str:
