@@ -22,7 +22,7 @@ class Expense:
     def date(self, date : str):
         if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", date):
             month, day, year = date.split('/')
-            if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= year <= self.YEAR_UPPER_LIMIT: # (FIXME TypeError)
+            if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= int(year) <= self.YEAR_UPPER_LIMIT:
                 self._date = date
                 return
             raise ValueError("Invalid or unsupported date input!")
@@ -193,6 +193,6 @@ class CLI:
 
 def main():
     cli = CLI()
-    
+
 if __name__ == '__main__':
     main()
