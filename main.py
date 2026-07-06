@@ -22,7 +22,7 @@ class Expense:
     def date(self, date : str):
         if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", date):
             month, day, year = date.split('/')
-            if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= year <= self.YEAR_UPPER_LIMIT:
+            if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= year <= self.YEAR_UPPER_LIMIT: # (FIXME TypeError)
                 self._date = date
                 return
             raise ValueError("Invalid or unsupported date input!")
@@ -97,6 +97,9 @@ class ExpenseReport:
         return max_cat, max_expense
     
     def print_report(self, month : int, year : int):
+        if month < 1 or month > 12 or year < Expense.YEAR_LOWER_LIMIT or year > Expense.YEAR_UPPER_LIMIT:
+            raise ValueError('Invalid or unsupported month/year input')
+        
         print(f'----- Monthly report of {month}/{year} -----')
         with open(self._database.path, 'r') as file:
             headers = file.readline().strip()
@@ -135,9 +138,60 @@ class ExpenseReport:
                 breakdown += f">> {key} - ${cats[key]} ({cats[key]/total*100:.1f}%)\n"
             print(breakdown)
 
-# CLI  
-### Awaiting refactoring ###
+class CLI:
+    FILENAME = 'expenses.csv'
+    def __init__(self):
+        self.exp_db = ExpenseDatabase(FILENAME)
+        self.activate()
 
+    def activate(self):
+        while True:
+            mode = input('Select modes (read/write/report): ').upper().strip()
+            match mode:
+                case 'READ':
+                    self.read_mode()
+                    break
+                case 'REPORT':
+                    if self.report_mode():
+                        break
+                case 'WRITE':
+                    if self.write_mode():
+                        break
+                case _:
+                    print('Invalid mode!')
+    
+    def read_mode(self):
+        print(self.exp_db)
+
+    def write_mode(self) -> bool:
+        expense = Expense(*self.get_input()) # TBI error checking w/ ret value
+        self.exp_db.add_expense(expense)
+        print('Saving...')
+        return True
+
+    def report_mode(self) -> bool:
+        try:
+            month = int(input('Of which month (1-12): '))
+            year = int(input('Of which year: '))
+        except ValueError:
+            print('Error: Invalid inputs')
+            return False
+        report = ExpenseReport(self.exp_db)
+        try:
+            report.print_report(month, year)
+            return True
+        except ValueError:
+            print('Error: Invalid or unsupported month / year formats')
+            return False
+
+    def get_input(self) -> tuple:
+        date = input('Date: ')
+        cat = input('Category: ')
+        amount = round(float(input('Amount($): ')), 2)
+        description = input('Description: ')
+        return date, cat, amount, description
+
+#######################################################################
 def get_input():
     date = input('Date: ')
     cat = input('Category: ')
@@ -252,6 +306,6 @@ def main(): # TBI: refactor to CLI class
                 break
             case _:
                 print('Invalid mode!')
-
+#######################################################################
 if __name__ == '__main__':
-    main()
+    cli = CLI()
