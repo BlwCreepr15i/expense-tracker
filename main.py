@@ -164,7 +164,12 @@ class CLI:
         print(self.exp_db)
 
     def write_mode(self) -> bool:
-        expense = Expense(*self.get_input()) # TBI error checking w/ ret value
+        try:
+            expense = Expense(*self.get_input())
+        except ValueError:
+            print('Invalid or unsupported date input!')
+            return False
+        
         self.exp_db.add_expense(expense)
         print('Saving...')
         return True
