@@ -20,14 +20,14 @@ class Expense:
     
     @date.setter
     def date(self, date : str):
-        if re.match(r"^1?\d/[1-9]\d/[1-9]\d{3}$", date):
+        if re.match(r'^1?\d/[1-9]\d/[1-9]\d{3}$', date):
             month, day, year = date.split('/')
             if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= int(year) <= self.YEAR_UPPER_LIMIT:
                 self._date = date
                 return
-            raise ValueError("Invalid or unsupported date input!")
+            raise ValueError('Invalid or unsupported date input!')
         else:
-            raise ValueError("Invalid date format!")
+            raise ValueError('Invalid date format!')
         
     @property
     def category(self) -> str:
@@ -38,7 +38,7 @@ class Expense:
         return self._amount
     
     @amount.setter
-    def amount(self, value):
+    def amount(self, value : float):
         self._amount = round(value, 2)
 
     @property
@@ -46,12 +46,12 @@ class Expense:
         return self._description
     
     def __str__(self):
-        return f"{self._date}, {self._category}, {self._amount}, {self._description}"
+        return f'{self._date}, {self._category}, {self._amount}, {self._description}'
 
 
 class ExpenseDatabase:
-    def __init__(self, filename : str, parent_dir : str = "files"):
-        self.path = Path(parent_dir + "/" + filename)
+    def __init__(self, filename : str, parent_dir : str = 'files'):
+        self.path = Path(parent_dir + '/' + filename)
     
     @property
     def path(self) -> Path:
@@ -87,8 +87,8 @@ class ExpenseReport:
         self._database = value
 
     @staticmethod
-    def find_max(cat_costs : dict) -> tuple:
-        max_cat = "None"
+    def find_max(cat_costs : dict) -> tuple[str, float]:
+        max_cat = 'None'
         max_expense = 0
         for key in cat_costs:
             if cat_costs[key] >= max_expense:
@@ -102,7 +102,7 @@ class ExpenseReport:
         
         print(f'----- Monthly report of {month}/{year} -----')
         with open(self._database.path, 'r') as file:
-            headers = file.readline().strip()
+            file.readline().strip() # skips the headers/ column titles
             data = file.readlines()
 
         cats = {}
@@ -111,7 +111,7 @@ class ExpenseReport:
         for row in data:
             elements = [element.strip() for element in row.split(',')]
             mo, _, yr = elements[0].split('/')
-            mo, yr = int(mo), int(yr) # bugfix
+            mo, yr = int(mo), int(yr)
 
             if mo == month and yr == year:
                 all_records += row # each row ends with \n
@@ -133,9 +133,9 @@ class ExpenseReport:
         print(f'>> Category with the most expense: {max_cat} - ${max_expense} ({percentage:.1f}%)\n')
 
         if total != 0:
-            breakdown = "Category Full Breakdown:\n"
+            breakdown = 'Category Full Breakdown:\n'
             for key in cats:
-                breakdown += f">> {key} - ${cats[key]} ({cats[key]/total*100:.1f}%)\n"
+                breakdown += f'>> {key} - ${cats[key]} ({cats[key]/total*100:.1f}%)\n'
             print(breakdown)
 
 class CLI:
@@ -167,7 +167,7 @@ class CLI:
         try:
             expense = Expense(*self.get_input())
         except ValueError:
-            print('Invalid or unsupported date input!')
+            print('Invalid or unsupported input!')
             return False
         
         self.exp_db.add_expense(expense)
@@ -189,7 +189,7 @@ class CLI:
             print('Error: Invalid or unsupported month / year formats')
             return False
 
-    def get_input(self) -> tuple:
+    def get_input(self) -> tuple[str, str, float, str]:
         date = input('Date: ')
         cat = input('Category: ')
         amount = round(float(input('Amount($): ')), 2)
@@ -197,7 +197,7 @@ class CLI:
         return date, cat, amount, description
 
 def main():
-    cli = CLI()
+    CLI()
 
 if __name__ == '__main__':
     main()
