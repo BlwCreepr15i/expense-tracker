@@ -1,8 +1,6 @@
 from pathlib import Path
 import re
 
-FILENAME = 'expenses.csv'
-
 class Expense:
 
     YEAR_LOWER_LIMIT = 1930
@@ -66,13 +64,14 @@ class ExpenseDatabase:
         self._path = value
     
     def add_expense(self, expense : Expense):
-        with open(FILENAME, 'a') as file:
+        with open(self._path, 'a') as file:
             file.write(f'\n{expense}')
 
     def __str__(self):
         with open(self._path, 'r') as file:
             data = file.read()
         return data
+
 
 class ExpenseReport:
     def __init__(self, database : ExpenseDatabase):
@@ -138,10 +137,10 @@ class ExpenseReport:
                 breakdown += f'>> {key} - ${cats[key]} ({cats[key]/total*100:.1f}%)\n'
             print(breakdown)
 
+
 class CLI:
-    FILENAME = 'expenses.csv'
-    def __init__(self):
-        self.exp_db = ExpenseDatabase(FILENAME)
+    def __init__(self, filename):
+        self.exp_db = ExpenseDatabase(filename)
         self.activate()
 
     def activate(self):
@@ -197,7 +196,7 @@ class CLI:
         return date, cat, amount, description
 
 def main():
-    CLI()
+    CLI('expenses.csv')
 
 if __name__ == '__main__':
     main()
