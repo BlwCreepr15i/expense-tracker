@@ -31,6 +31,10 @@ class Expense:
     def category(self) -> str:
         return self._category
     
+    @category.setter
+    def category(self, value : str):
+        self._category = value
+
     @property
     def amount(self) -> float:
         return self._amount
@@ -42,6 +46,10 @@ class Expense:
     @property
     def description(self) -> str:
         return self._description
+    
+    @description.setter
+    def description(self, value : str):
+        self._description = value
     
     def __str__(self):
         return f'{self._date}, {self._category}, {self._amount}, {self._description}'
