@@ -74,7 +74,19 @@ class ExpenseDatabase:
     def add_expense(self, expense : Expense):
         with open(self._path, 'a') as file:
             file.write(f'\n{expense}')
+    
+    def get_all_expenses(self) -> list[Expense]:
+        with open(self._path, 'r') as file:
+            file.readline()
+            data = file.readlines()
 
+        expenses = []
+        for row in data:
+            elements = [element.strip() for element in row.split(',')] # date, category, amount, desc
+            elements[2] = float(elements[2]) # amount type conversion
+            expenses.append(Expense(*elements))
+        return expenses
+    
     def __str__(self):
         with open(self._path, 'r') as file:
             data = file.read()
@@ -108,29 +120,26 @@ class ExpenseReport:
             raise ValueError('Invalid or unsupported month/year input')
         
         print(f'----- Monthly report of {month}/{year} -----')
-        with open(self._database.path, 'r') as file:
-            file.readline().strip() # skips the headers/ column titles
-            data = file.readlines()
 
         cats = {}
         total = 0
         all_records = ''
-        for row in data:
-            elements = [element.strip() for element in row.split(',')]
-            mo, _, yr = elements[0].split('/')
+        for expense in self._database.get_all_expenses():
+            mo, _, yr = expense.date.split('/')
             mo, yr = int(mo), int(yr)
 
             if mo == month and yr == year:
-                all_records += row # each row ends with \n
-                cost = float(elements[2])
+                all_records += str(expense) + '\n'
+                cost = expense.amount
                 total += cost
-                if cats.get(elements[1]) == None:
-                    cats[elements[1]] = cost
+                if cats.get(expense.category) == None:
+                    cats[expense.category] = cost
                 else:
-                    cats[elements[1]] += cost
-        all_records += '\n'
+                    cats[expense.category] += cost
 
+        all_records += '\n'
         max_cat, max_expense = self.find_max(cats)
+
         if total == 0:
             percentage = 0 # prevents division by zero errors
         else:
