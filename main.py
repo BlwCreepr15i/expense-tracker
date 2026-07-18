@@ -1,5 +1,5 @@
 from pathlib import Path
-import re
+import datetime
 
 class Expense:
 
@@ -13,19 +13,19 @@ class Expense:
         self.description = desc
     
     @property
-    def date(self) -> str:
+    def date(self) -> datetime.date:
         return self._date
     
     @date.setter
-    def date(self, date : str):
-        if re.match(r'^[0-1]\d/\d{2}/[1-9]\d{3}$', date):
-            month, day, year = date.split('/')
-            if 1 <= int(month) <= 12 and 1 <= int(day) <= 31 and self.YEAR_LOWER_LIMIT <= int(year) <= self.YEAR_UPPER_LIMIT:
-                self._date = date
-                return
-            raise ValueError('Invalid or unsupported date input!')
-        else:
-            raise ValueError('Invalid date format!')
+    def date(self, value : str):
+        try:
+            value = datetime.datetime.strptime(value, '%m/%d/%Y').date()
+        except ValueError:
+            raise ValueError('Invalid date.')
+        
+        if value.year < self.YEAR_LOWER_LIMIT or value.year > self.YEAR_UPPER_LIMIT:
+            raise ValueError('Unsupported date year.')
+        self._date = value
         
     @property
     def category(self) -> str:
@@ -52,7 +52,7 @@ class Expense:
         self._description = value
     
     def __str__(self):
-        return f'{self._date}, {self._category}, {self._amount}, {self._description}'
+        return f'{self._date.strftime('%m/%d/%Y')}, {self._category}, {self._amount}, {self._description}'
 
 
 class ExpenseDatabase:
@@ -125,10 +125,9 @@ class ExpenseReport:
         total = 0
         all_records = ''
         for expense in self._database.get_all_expenses():
-            mo, _, yr = expense.date.split('/')
-            mo, yr = int(mo), int(yr)
 
-            if mo == month and yr == year:
+            date = expense.date
+            if date.month == month and date.year == year:
                 all_records += str(expense) + '\n'
                 cost = expense.amount
                 total += cost
@@ -182,8 +181,8 @@ class CLI:
     def write_mode(self) -> bool:
         try:
             expense = Expense(*self.get_input())
-        except ValueError:
-            print('Invalid or unsupported input!')
+        except ValueError as e:
+            print(e)
             return False
         
         self.exp_db.add_expense(expense)
@@ -194,15 +193,15 @@ class CLI:
         try:
             month = int(input('Of which month (1-12): '))
             year = int(input('Of which year: '))
-        except ValueError:
+        except ValueError as e:
             print('Error: Invalid inputs')
             return False
         report = ExpenseReport(self.exp_db)
         try:
             report.print_report(month, year)
             return True
-        except ValueError:
-            print('Error: Invalid or unsupported month / year formats')
+        except ValueError as e:
+            print(e)
             return False
 
     def get_input(self) -> tuple[str, str, float, str]:
