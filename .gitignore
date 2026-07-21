@@ -7,8 +7,29 @@ lib/
 .env
 .envrc
 .venv
+.env.local
+.env.*.local
+config.json
+secrets.yaml
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Files and Databases
+*.csv
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.sql
+*.psql
+*.dump
+
+# Large Files
+*.pdf
+*.zip
+*.tar.gz
+*.rar
