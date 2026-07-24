@@ -9,6 +9,22 @@ class ExpenseDatabase:
         self.conn = sqlite3.connect(name + '.db')
         self.cursor = self.conn.cursor()
 
+    @property
+    def conn(self) -> sqlite3.Connection:
+        return self._conn
+    
+    @conn.setter
+    def conn(self, value : sqlite3.Connection):
+        self._conn = value
+
+    @property
+    def cursor(self) -> sqlite3.Cursor:
+        return self._cursor
+    
+    @cursor.setter
+    def cursor(self, value : sqlite3.Cursor):
+        self._cursor = value
+
     def add_expense():
         ... # TBI
 
