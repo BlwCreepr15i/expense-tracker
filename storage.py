@@ -8,6 +8,7 @@ class ExpenseDatabase:
         self.name = name
         self.conn = sqlite3.connect(name + '.db')
         self.cursor = self.conn.cursor()
+        self.create_table()
 
     @property
     def conn(self) -> sqlite3.Connection:
@@ -24,6 +25,17 @@ class ExpenseDatabase:
     @cursor.setter
     def cursor(self, value : sqlite3.Cursor):
         self._cursor = value
+
+    def create_table(self):
+        try:
+            self._cursor.execute('''CREATE TABLE expenses (
+                                    date text,
+                                    category text,
+                                    amount real
+                                    )''')
+            self._conn.commit()
+        except sqlite3.OperationalError:
+            pass
 
     def add_expense():
         ... # TBI
