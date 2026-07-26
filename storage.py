@@ -31,7 +31,8 @@ class ExpenseDatabase:
             self._cursor.execute('''CREATE TABLE expenses (
                                     date text,
                                     category text,
-                                    amount real
+                                    amount real,
+                                    description text
                                     )''')
             self._conn.commit()
         except sqlite3.OperationalError:
