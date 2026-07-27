@@ -43,7 +43,7 @@ class ExpenseDatabase:
             self._cursor.execute('INSERT INTO expenses VALUES (?, ?, ?, ?)', 
                              (expense.date.strftime('%m/%d/%Y'), expense.category, expense.amount, expense.description))
 
-    def get_all_expenses(self) -> list[Expense]:
+    def get_all_expenses(self, sort : bool = True) -> list[Expense]:
         with self._conn:
             self._cursor.execute('SELECT * FROM expenses')
             all_data = self._cursor.fetchall()
@@ -51,8 +51,25 @@ class ExpenseDatabase:
         expenses = []
         for row in all_data:
             expenses.append(Expense(*row))
+
+        if sort:
+            return self.sort_chrono(expenses)
         return expenses
 
+    # sort based on chronological order
+    @staticmethod
+    def sort_chrono(expenses : list[Expense]) -> list[Expense]:
+        exp_list = expenses.copy() # to prevent modifying the original list
+        for i in range(1, len(exp_list)): # insertion sort O(n^2)
+            expense_i = exp_list[i]
+            j = i - 1
+            while j >= 0 and exp_list[j].compare_date(expense_i) > 0:
+                exp_list[j + 1] = exp_list[j]
+                j -= 1
+            exp_list[j + 1] = expense_i
+            
+        return exp_list
+        
     def __str__(self):
         data_str = 'Date, Category, Amount, Description\n'
         expenses = self.get_all_expenses()

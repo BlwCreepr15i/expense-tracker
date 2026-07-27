@@ -49,6 +49,16 @@ class Expense:
     @description.setter
     def description(self, value : str):
         self._description = value
-    
+
+    # returns the number of days apart (the day of timedelta)
+    # if positive, then this date is in the future of other date;
+    # if negative, then opposite of the above case; 
+    def compare_date(self, other) -> int:
+        if type(other) != Expense:
+            raise NotImplementedError('Invalid type!')
+        
+        t_delta = self.date - other.date
+        return t_delta.days
+
     def __str__(self):
         return f'{self._date.strftime('%m/%d/%Y')}, {self._category}, {self._amount}, {self._description}'
