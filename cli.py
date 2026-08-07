@@ -3,8 +3,8 @@ from storage import ExpenseDatabase
 from report import ExpenseReport
 
 class CLI:
-    def __init__(self, filename):
-        self.exp_db = ExpenseDatabase(filename)
+    def __init__(self, db_name):
+        self.exp_db = ExpenseDatabase(db_name)
         self.activate()
 
     def activate(self):

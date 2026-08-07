@@ -1,41 +1,79 @@
-from pathlib import Path
+import sqlite3
 
 from expense import Expense
 
 class ExpenseDatabase:
-    def __init__(self, filename : str, parent_dir : str = 'files'):
-        self.path = Path(parent_dir + '/' + filename)
-    
+
+    def __init__(self, name : str):
+        self.name = name
+        self.conn = sqlite3.connect(name + '.db')
+        self.cursor = self.conn.cursor()
+        self.create_table()
+
     @property
-    def path(self) -> Path:
-        return self._path
+    def conn(self) -> sqlite3.Connection:
+        return self._conn
     
-    @path.setter
-    def path(self, value : Path):
-        if not value.exists():
-            value.parent.mkdir(exist_ok=True, parents=True)
-            value.touch()
-            value.write_text('Date, Category, Amount, Description')
-        self._path = value
+    @conn.setter
+    def conn(self, value : sqlite3.Connection):
+        self._conn = value
+
+    @property
+    def cursor(self) -> sqlite3.Cursor:
+        return self._cursor
     
+    @cursor.setter
+    def cursor(self, value : sqlite3.Cursor):
+        self._cursor = value
+
+    def create_table(self):
+        try:
+            self._cursor.execute('''CREATE TABLE expenses (
+                                    date text,
+                                    category text,
+                                    amount real,
+                                    description text
+                                    )''')
+            self._conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
     def add_expense(self, expense : Expense):
-        with open(self._path, 'a') as file:
-            file.write(f'\n{expense}')
-    
-    def get_all_expenses(self) -> list[Expense]:
-        with open(self._path, 'r') as file:
-            file.readline()
-            data = file.readlines()
+        with self._conn:
+            self._cursor.execute('INSERT INTO expenses VALUES (?, ?, ?, ?)', 
+                             (expense.date.strftime('%m/%d/%Y'), expense.category, expense.amount, expense.description))
+
+    def get_all_expenses(self, sort : bool = True) -> list[Expense]:
+        with self._conn:
+            self._cursor.execute('SELECT * FROM expenses')
+            all_data = self._cursor.fetchall()
 
         expenses = []
-        for row in data:
-            elements = [element.strip() for element in row.split(',')] # date, category, amount, desc
-            elements[2] = float(elements[2]) # amount type conversion
-            expenses.append(Expense(*elements))
-        return expenses
-    
-    def __str__(self):
-        with open(self._path, 'r') as file:
-            data = file.read()
-        return data
+        for row in all_data:
+            expenses.append(Expense(*row))
 
+        if sort:
+            return self.sort_chrono(expenses)
+        return expenses
+
+    # sort based on chronological order
+    @staticmethod
+    def sort_chrono(expenses : list[Expense]) -> list[Expense]:
+        exp_list = expenses.copy() # to prevent modifying the original list
+        for i in range(1, len(exp_list)): # insertion sort O(n^2)
+            expense_i = exp_list[i]
+            j = i - 1
+            while j >= 0 and exp_list[j].compare_date(expense_i) > 0:
+                exp_list[j + 1] = exp_list[j]
+                j -= 1
+            exp_list[j + 1] = expense_i
+            
+        return exp_list
+        
+    def __str__(self):
+        data_str = 'Date, Category, Amount, Description\n'
+        expenses = self.get_all_expenses()
+
+        for expense in expenses:
+            data_str += str(expense) + '\n'
+        return data_str

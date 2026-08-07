@@ -32,7 +32,7 @@ class ExpenseReport:
         cats = {}
         total = 0
         all_records = ''
-        for expense in self._database.get_all_expenses():
+        for expense in self._database.get_all_expenses(False):
 
             date = expense.date
             if date.month == month and date.year == year:
