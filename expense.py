@@ -22,7 +22,7 @@ class Expense:
         except ValueError:
             raise ValueError('Invalid date.')
         
-        if value.year < self.YEAR_LOWER_LIMIT or value.year > self.YEAR_UPPER_LIMIT:
+        if not self.is_year_valid(value.year):
             raise ValueError('Unsupported date year.')
         self._date = value
         
@@ -49,6 +49,10 @@ class Expense:
     @description.setter
     def description(self, value : str):
         self._description = value
+
+    @classmethod
+    def is_year_valid(cls, year : int):
+        return year >= cls.YEAR_LOWER_LIMIT and year <= cls.YEAR_UPPER_LIMIT # both inclusive
 
     # returns the number of days apart (the day of timedelta)
     # if positive, then this date is in the future of other date;
