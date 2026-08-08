@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class GUI:
 
     def __init__(self, title):
@@ -11,7 +12,10 @@ class GUI:
         self.root.title(title)
 
         # Menus
-        self.show_main_menu()
+        # self.show_main_menu()
+        self.show_read_menu()
+        # self.show_write_menu()
+        # self.show_report_menu()
 
         self.root.mainloop()
     
@@ -39,16 +43,45 @@ class GUI:
         
         button_frame.pack(pady=10, fill='x')
 
-    def show_read_menu():
-        pass
+    def show_read_menu(self):
+        title_label = tk.Label(self.root, text="Expense Tracker", font=("Arial", 12), compound="left")
+        title_label.grid(row=0, column=0)
 
-    def show_write_menu(): 
-        pass
+        # Month/year frame
+        frame = tk.Frame(self.root)
+        frame.grid(row=1, column=0)
 
-    def show_report_menu():
-        pass
+        month_label = tk.Label(frame, text="Which month would you want to see?", font=("Arial", 12))
+        month_label.grid(row=0, column=0)
 
-    
+        month_options = ("All month", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+        month_drop_selected = tk.StringVar()
+        month_drop_selected.set(month_options[0])
+
+        month_drop = tk.OptionMenu(frame, month_drop_selected, *month_options)
+        month_drop.grid(row=0, column=1)
+
+        year_label = tk.Label(frame, text="Which year would you want to see?", font=("Arial", 12))
+        year_label.grid(row=1, column=0)
+
+        year_input = tk.Entry(frame)
+        year_input.grid(row=1, column=1)
+
+        show_button = tk.Button(frame, text="Show data", font=("Arial", 12), command=self.show_data)
+        show_button.grid(row=2, column=0)
+
+        all_year_check = tk.Checkbutton(frame, text="I want to see all data.")
+        all_year_check.grid(row=2, column=1)
+
+    def show_data(self):
+        print("TBI")
+        pass # TBI
+
+    def show_write_menu(self): 
+        pass # TBI
+
+    def show_report_menu(self):
+        pass # TBI
 
 
 ###################################################
