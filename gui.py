@@ -1,10 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 
+from expense import Expense
+from storage import ExpenseDatabase
+
 class GUI:
 
-    def __init__(self, title):
+    def __init__(self, title, db_name="expenses"):
 
+        self.db = ExpenseDatabase(db_name)
         self.root = tk.Tk()
 
         # Window Settings
@@ -75,15 +79,60 @@ class GUI:
         year_input = tk.Entry(frame)
         year_input.grid(row=1, column=1)
 
-        show_button = tk.Button(frame, text="Show data", command=self.show_data)
+        all_year_check_var = tk.BooleanVar()
+        all_year_check = tk.Checkbutton(frame, text="I want to see all data.", variable=all_year_check_var)
+        all_year_check.grid(row=2, column=1)
+        
+        show_button = tk.Button(frame, text="Show data", command=lambda: 
+                                self.show_data(all_year_check_var.get(), year_input, month_options.index(month_drop_selected.get())))
         show_button.grid(row=2, column=0)
 
-        all_year_check = tk.Checkbutton(frame, text="I want to see all data.")
-        all_year_check.grid(row=2, column=1)
+        
+    def show_data(self, show_all : bool, year_input : tk.Entry, month : int):
 
-    def show_data(self):
-        print("TBI")
-        pass # TBI
+        error_label = tk.Label(self.root, text="\t\t\t", padx=10, pady=10)
+        error_label.grid(row=2, column=0, sticky="nw", columnspan=2)
+        self.root.rowconfigure(2, weight=1)
+        
+        # Frame for display
+        data_frame = tk.Frame(self.root)
+        data_frame.grid(row=3, column=0, sticky="nsew")
+        data_frame.rowconfigure(0, weight=1)
+        data_frame.rowconfigure(1, weight=2)
+        data_frame.columnconfigure(0, weight=1)
+        self.root.rowconfigure(3, weight=1)
+
+        data_list = tk.Listbox(data_frame)
+        data_list.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+        if show_all:
+            data_list.delete(0, tk.END)  
+
+            for expense in self.db.get_all_expenses():
+                data_list.insert(0, str(expense))
+            return
+
+        # error checking
+        try:
+            year = int(year_input.get())
+        except ValueError:
+            error_label.config(text="Error: Invalid Year!\t\t", font=("Arial", 10))
+            year_input.delete(0, tk.END)
+            return
+        else:
+            if not Expense.is_year_valid(year):
+                error_label.config(text="Error: Unsupported Year!", font=("Arial", 10))
+                year_input.delete(0, tk.END)
+                return
+
+        data_list.delete(0, tk.END)  
+        
+        if month == 0:
+            # show year data
+            ... # TBI
+        else:
+            # show month-year data
+            ... # TBI
 
     def show_write_menu(self): 
         pass # TBI
