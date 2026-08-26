@@ -115,17 +115,16 @@ class GUI:
         # error checking
         try:
             year = int(year_input.get())
+            year_input.delete(0, tk.END)
         except ValueError:
             error_label.config(text="Error: Invalid Year!\t\t", font=("Arial", 10))
-            year_input.delete(0, tk.END)
             return
         else:
             if not Expense.is_year_valid(year):
                 error_label.config(text="Error: Unsupported Year!", font=("Arial", 10))
-                year_input.delete(0, tk.END)
                 return
 
-        data_list.delete(0, tk.END)  
+        data_list.delete(0, tk.END)
         
         if month == 0:
             # show year data
