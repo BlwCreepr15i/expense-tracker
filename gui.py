@@ -17,8 +17,8 @@ class GUI:
 
         # Menus
         # self.show_main_menu()
-        self.show_read_menu()
-        # self.show_write_menu()
+        # self.show_read_menu()
+        self.show_write_menu()
         # self.show_report_menu()
 
         self.root.mainloop()
@@ -137,8 +137,58 @@ class GUI:
             ... # TBI
 
     def show_write_menu(self): 
-        pass # TBI
+        self.write_frame = tk.Frame(self.root)
+        self.write_frame.grid(row=0, column=0, sticky="new", padx=20, pady=10)
+        self.write_frame.rowconfigure(0, weight=2)
+        self.write_frame.rowconfigure(1, weight=1)
+        self.write_frame.rowconfigure(2, weight=1)
+        self.write_frame.rowconfigure(3, weight=1)
+        self.write_frame.rowconfigure(4, weight=1)
+        self.write_frame.rowconfigure(5, weight=1)
+        self.write_frame.rowconfigure(6, weight=1)
+        self.write_frame.rowconfigure(7, weight=1)
+        self.write_frame.columnconfigure(0, weight=1)
+        self.write_frame.columnconfigure(1, weight=1)
 
+        self.root.rowconfigure(0, weight=1)
+        self.root.columnconfigure(0, weight=1)
+
+        title_label = tk.Label(self.write_frame, text="Expense Tracker (Mode: Writing)", font=("Arial", 12, "bold"))
+        title_label.grid(row=0, column=0, sticky="w")
+
+        info_label = tk.Label(self.write_frame, text="You're about to write an expense entry into the database", font=("Arial", 10, "italic"))
+        info_label.grid(row=1, column=0, sticky="nsw", columnspan=2)
+
+        date_label = tk.Label(self.write_frame, text="Input a date (mm/dd/yyyy): ", font=("Arial", 12))
+        date_label.grid(row=2, column=0, sticky="nsw")
+        date_input = tk.Entry(self.write_frame)
+        date_input.grid(row=2, column=1)
+
+        category_label = tk.Label(self.write_frame, text="Input a category: ", font=("Arial", 12))
+        category_label.grid(row=3, column=0, sticky="nsw")
+        category_input = tk.Entry(self.write_frame)
+        category_input.grid(row=3, column=1)
+
+        amount_label = tk.Label(self.write_frame, text="Input the amount of expense($): ", font=("Arial", 12))
+        amount_label.grid(row=4, column=0, sticky="nsw")
+        amount_input = tk.Entry(self.write_frame)
+        amount_input.grid(row=4, column=1)
+
+        desc_label = tk.Label(self.write_frame, text="Description/note for this expense (optional): ", font=("Arial", 12))
+        desc_label.grid(row=5, column=0, sticky="nsw")
+        desc_input = tk.Entry(self.write_frame)
+        desc_input.grid(row=5, column=1)
+
+        write_button = tk.Button(self.write_frame, text="Write", background="#bfffac")
+        write_button.grid(row=7, column=0, sticky="nsew", columnspan=2)
+
+        back_button = tk.Button(self.write_frame, text="Back to Main Menu", background="#F5FFB3")
+        back_button.grid(row=8, column=0, sticky="nsew", columnspan=2)
+
+        # row 6 for error message, see below
+        # error_label = tk.Label(self.write_frame, text="Invalid Date/Amount!", font=("Arial", 10, "italic"), foreground="#ff0000")
+        # error_label.grid(row=6, column=0, columnspan=2, sticky="nsew")
+    
     def show_report_menu(self):
         pass # TBI
 
