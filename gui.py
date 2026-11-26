@@ -156,7 +156,8 @@ class GUI:
         title_label = tk.Label(self.write_frame, text="Expense Tracker (Mode: Writing)", font=("Arial", 12, "bold"))
         title_label.grid(row=0, column=0, sticky="w")
 
-        info_label = tk.Label(self.write_frame, text="You're about to write an expense entry into the database", font=("Arial", 10, "italic"))
+        info_label = tk.Label(self.write_frame, text="You're about to write an expense entry into the database", 
+                              font=("Arial", 10, "italic"))
         info_label.grid(row=1, column=0, sticky="nsw", columnspan=2)
 
         date_label = tk.Label(self.write_frame, text="Input a date (mm/dd/yyyy): ", font=("Arial", 12))
@@ -179,16 +180,46 @@ class GUI:
         desc_input = tk.Entry(self.write_frame)
         desc_input.grid(row=5, column=1)
 
-        write_button = tk.Button(self.write_frame, text="Write", background="#bfffac")
+        error_label = tk.Label(self.write_frame, text=" ", font=("Arial", 10, "italic"), justify="left")
+        error_label.grid(row=6, column=0, columnspan=2, sticky="nw")
+
+        # serves as a bridge between Expense class and write menu elements, 
+        # converts error into error messages
+        def write_data():
+            error_label.config(text="", foreground="#ff0000")
+            error_str = ""
+            amount = 0
+            try:
+                amount = float(amount_input.get())
+            except ValueError:
+                error_str += "Invalid amount of expense.\n"
+
+            date = date_input.get()
+            category = category_input.get()
+            desc = desc_input.get()
+            
+            try:
+                expense = Expense(date, category, amount, desc)
+            except ValueError as err:
+                error_str += str(err)
+
+            if error_str:
+                error_label.config(text=error_str)
+                return
+
+            self.db.add_expense(expense)
+            error_label.config(text="Expense Successfully Added!", foreground="#0dc000")
+            for entry in (date_input, category_input, amount_input, desc_input):
+                entry.delete(0, tk.END)
+
+
+        write_button = tk.Button(self.write_frame, text="Write", background="#bfffac", command=write_data)
         write_button.grid(row=7, column=0, sticky="nsew", columnspan=2)
 
         back_button = tk.Button(self.write_frame, text="Back to Main Menu", background="#F5FFB3")
         back_button.grid(row=8, column=0, sticky="nsew", columnspan=2)
-
-        # row 6 for error message, see below
-        # error_label = tk.Label(self.write_frame, text="Invalid Date/Amount!", font=("Arial", 10, "italic"), foreground="#ff0000")
-        # error_label.grid(row=6, column=0, columnspan=2, sticky="nsew")
-    
+        
+        
     def show_report_menu(self):
         pass # TBI
 
